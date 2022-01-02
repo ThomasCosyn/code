@@ -11,19 +11,10 @@ import utils
 from webdriver_manager.chrome import ChromeDriverManager
 
 # Connexion à la base de données locale
-conn = psycopg2.connect(host="localhost",
-                        database="NOPLP",
-                        user="postgres",
-                        password="Objectifcentrale2019!")
-cur = conn.cursor()
+conn, cur = utils.connexion()
 
 # Variables liées aux tables SQL
-cur.execute("SELECT id, numero FROM public.\"Passage\" ORDER BY id DESC	LIMIT 1")
-for row in cur:
-    idPassage = int(row[0]) + 1
-    idEmission = int(row[1]) + 1
-print("idPassage initialisé à : " + str(idPassage))
-print("idEmission initialisé à : " + str(idEmission))
+idPassage, idEmission = utils.getSQLVariables(cur)
 
 
 categories = {1: '50', 2: '40', 3: '30', 4: '20', 5: '10', 6: 'MC', 7: '20k'}
@@ -37,7 +28,7 @@ option.add_argument('--ignore-ssl-errors')
 browser = webdriver.Chrome(ChromeDriverManager().install(), options=option)
 
 
-lien = 'https://n-oubliez-pas-les-paroles.fandom.com/fr/wiki/Novembre_2021'
+lien = 'https://n-oubliez-pas-les-paroles.fandom.com/fr/wiki/Décembre_2021'
 
 # Gestion du temps
 
@@ -61,17 +52,17 @@ button.click()
 
 jours = browser.find_elements_by_xpath('//*[@id="mw-content-text"]/div/h2')
 nbJours = len(jours)
-u = 49
+u = 27
 
 # On itère sur les journées
-for i in range(26, nbJours+1):
+for i in range(17, nbJours+1):
 
     date = browser.find_element_by_xpath(
         '//*[@id="mw-content-text"]/div/h2[' + str(i) + ']').text
     dateListe = date.split(' ')
 
     # On enlève les primes et émissions particulières
-    if len(dateListe) == 3:
+    if len(dateListe) == 3 and i not in [4, 5]:
         dateOk = annee + '-' + \
             str(mois[dateListe[2]]) + '-' + \
             dateListe[1].replace('1er', '1')
@@ -211,74 +202,5 @@ for i in range(26, nbJours+1):
         conn.commit()
 
     else:
-        dateOk = annee + '-' + \
-            str(mois[dateListe[2]]) + '-' + \
-            dateListe[1].replace('1er', '1')
-        print(dateOk)
-        print("i = " + str(i) + ", u = " + str(u))
-
-        for _ in range(4):
-            chansons = []
-            # C'est parti pour la première émission
-            for j in range(1, 8):
-
-                ligne = browser.find_element_by_xpath(
-                    '//*[@id="mw-content-text"]/div/ul[' + str(u) + ']/li[' + str(j) + ']').text
-
-                if j <= 5 and 'non pris' not in ligne.lower():
-                    (c1, c2) = utils.getChoisieNonChoisie(u, j, browser)
-                    chansons.append((c1, c2))
-                    print(chansons)
-                    c1 = c1.replace("'", "''")
-                    # Pour la chanson choisie
-                    utils.setNewPassage(cur, dateOk, categories,
-                                        j, idEmission, idPassage, True)
-                    idChanson = utils.getIdChanson(cur, c1)
-                    cur.execute("INSERT INTO public.\"Chanson_Passage\"(\"Chanson_id\", \"Passage_id\")	VALUES ('" +
-                                str(idChanson) + "', '" + str(idPassage) + "');")
-                    idPassage += 1
-                    # Pour la chanson non choisie
-                    c2 = c2.replace("'", "''")
-                    utils.setNewPassage(cur, dateOk, categories,
-                                        j, idEmission, idPassage, False)
-                    idChanson = utils.getIdChanson(cur, c2)
-                    cur.execute("INSERT INTO public.\"Chanson_Passage\"(\"Chanson_id\", \"Passage_id\")	VALUES ('" +
-                                str(idChanson) + "', '" + str(idPassage) + "');")
-                    idPassage += 1
-
-                if j == 6:
-                    MC = ligne.split(' : ')[1].replace("'", "''")
-                    chansons.append(MC)
-                    print(chansons)
-                    utils.setNewPassage(cur, dateOk, categories,
-                                        j, idEmission, idPassage, True)
-                    idChanson = utils.getIdChanson(cur, MC)
-                    cur.execute("INSERT INTO public.\"Chanson_Passage\"(\"Chanson_id\", \"Passage_id\")	VALUES ('" +
-                                str(idChanson) + "', '" + str(idPassage) + "');")
-                    idPassage += 1
-
-                if j == 7:
-                    (c1, c2) = utils.getChoisieNonChoisie(u, j, browser)
-                    chansons.append((c1, c2))
-                    print(chansons)
-                    # Pour la chanson choisie
-                    c1 = c1.replace("'", "''")
-                    utils.setNewPassage(cur, dateOk, categories,
-                                        j, idEmission, idPassage, True)
-                    idChanson = utils.getIdChanson(cur, c1)
-                    cur.execute("INSERT INTO public.\"Chanson_Passage\"(\"Chanson_id\", \"Passage_id\")	VALUES ('" +
-                                str(idChanson) + "', '" + str(idPassage) + "');")
-                    idPassage += 1
-                    # Pour la chanson non choisie
-                    c2 = c2.replace("'", "''")
-                    utils.setNewPassage(cur, dateOk, categories,
-                                        j, idEmission, idPassage, False)
-                    idChanson = utils.getIdChanson(cur, c2)
-                    cur.execute("INSERT INTO public.\"Chanson_Passage\"(\"Chanson_id\", \"Passage_id\")	VALUES ('" +
-                                str(idChanson) + "', '" + str(idPassage) + "');")
-                    idPassage += 1
-
-            print(chansons)
-            u += 1
-            idEmission += 1
-            chansons = []
+        if len(dateListe) > 3:
+            u += 4

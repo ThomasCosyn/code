@@ -1,4 +1,11 @@
 import selenium.common.exceptions
+import psycopg2
+
+conversionMois = {1: "Janvier", 2: "Février", 3: "Mars", 4: "Avril", 5: "Mai", 6: "Juin",
+                  7: "Juillet", 8: "Août", 9: "Septembre", 10: "Octobre", 11: "Novembre", 12: "Décembre"}
+mois = {"décembre": 12, "janvier": 1,
+        "février": 2, "mars": 3, "avril": 4, "mai": 5, "juin": 6, "juillet": 7, "août": 8, "septembre": 9, "octobre": 10, "novembre": 11}
+categories = {1: '50', 2: '40', 3: '30', 4: '20', 5: '10', 6: 'MC', 7: '20k'}
 
 # Fonction qui renvoie, pour un thème, la chanson choisie puis la chanson non-choisie
 
@@ -299,9 +306,8 @@ def getIdChanson(cur, chanson):
     for row in cur:
         return row[0]
 
+
 # Création d'un nouveau passage dans la table Passage
-
-
 def setNewPassage(cur, dateOk, categories, j, idEmission, idPassage, choisie):
     if choisie:
         cur.execute("INSERT INTO public.\"Passage\"(id, date, choisie, categorie, numero) VALUES ('" +
@@ -318,3 +324,112 @@ def getNC(chaines):
         if chaineText[:min(len(chaineText), 11)] != 'Les années ':
             em1chanson50nc = chaineText
     return em1chanson50nc
+
+
+# Fonction se connectant à la base locale
+def connexion():
+    conn = psycopg2.connect(host="localhost",
+                            database="NOPLP",
+                            user="postgres",
+                            password="Objectifcentrale2019!")
+    return (conn, conn.cursor())
+
+# Fonction retournant l'idPassage et l'idEmission de la base
+
+
+def getSQLVariables(cur):
+    cur.execute(
+        "SELECT id, numero FROM public.\"Passage\" ORDER BY id DESC	LIMIT 1")
+    for row in cur:
+        idPassage = int(row[0]) + 1
+        idEmission = int(row[1]) + 1
+    print("idPassage initialisé à : " + str(idPassage))
+    print("idEmission initialisé à : " + str(idEmission))
+    return (idPassage, idEmission)
+
+# Fonction retournant les dates des dernières émissions récupérés
+
+
+def getLastDate(cur):
+    cur.execute("SELECT date FROM public.\"Dernieres20k\" LIMIT 4")
+    dates = []
+    for row in cur:
+        dates.append(row[0])
+    for date in dates:
+        if date != dates[0]:
+            return "Erreur"
+    return dates[0]
+
+# Chanson définissant le chemin dynamique de l'URL
+
+
+def chemin(date):
+    annee = str(date.year)
+    mois = conversionMois[date.month]
+    return mois + "_" + annee
+
+# Fonction récoltant les chansons pour un émission données
+
+
+def emission(chansons, browser, u, cur, dateOk, idEmission, idPassage):
+
+    chansons = []
+    # C'est parti pour la première émission
+    for j in range(1, 8):
+
+        ligne = browser.find_element_by_xpath(
+            '//*[@id="mw-content-text"]/div/ul[' + str(u) + ']/li[' + str(j) + ']').text
+
+        if j <= 5 and 'non pris' not in ligne.lower():
+            (c1, c2) = getChoisieNonChoisie(u, j, browser)
+            chansons.append((c1, c2))
+            print(chansons)
+            c1 = c1.replace("'", "''")
+            # Pour la chanson choisie
+            setNewPassage(cur, dateOk, categories, j,
+                          idEmission, idPassage, True)
+            idChanson = getIdChanson(cur, c1)
+            cur.execute("INSERT INTO public.\"Chanson_Passage\"(\"Chanson_id\", \"Passage_id\")	VALUES ('" +
+                        str(idChanson) + "', '" + str(idPassage) + "');")
+            idPassage += 1
+            # Pour la chanson non choisie
+            c2 = c2.replace("'", "''")
+            setNewPassage(cur, dateOk, categories,
+                          j, idEmission, idPassage, False)
+            idChanson = getIdChanson(cur, c2)
+            cur.execute("INSERT INTO public.\"Chanson_Passage\"(\"Chanson_id\", \"Passage_id\")	VALUES ('" +
+                        str(idChanson) + "', '" + str(idPassage) + "');")
+            idPassage += 1
+
+            if j == 6:
+                MC = ligne.split(' : ')[1].replace("'", "''")
+                chansons.append(MC)
+                print(chansons)
+                setNewPassage(cur, dateOk, categories,
+                              j, idEmission, idPassage, True)
+                idChanson = getIdChanson(cur, MC)
+                cur.execute("INSERT INTO public.\"Chanson_Passage\"(\"Chanson_id\", \"Passage_id\")	VALUES ('" +
+                            str(idChanson) + "', '" + str(idPassage) + "');")
+                idPassage += 1
+
+            if j == 7:
+                (c1, c2) = getChoisieNonChoisie(u, j, browser)
+                chansons.append((c1, c2))
+                print(chansons)
+                # Pour la chanson choisie
+                c1 = c1.replace("'", "''")
+                setNewPassage(cur, dateOk, categories,
+                              j, idEmission, idPassage, True)
+                idChanson = getIdChanson(cur, c1)
+                cur.execute("INSERT INTO public.\"Chanson_Passage\"(\"Chanson_id\", \"Passage_id\")	VALUES ('" +
+                            str(idChanson) + "', '" + str(idPassage) + "');")
+                idPassage += 1
+                # Pour la chanson non choisie
+                c2 = c2.replace("'", "''")
+                setNewPassage(cur, dateOk, categories,
+                              j, idEmission, idPassage, False)
+                idChanson = getIdChanson(cur, c2)
+                cur.execute("INSERT INTO public.\"Chanson_Passage\"(\"Chanson_id\", \"Passage_id\")	VALUES ('" +
+                            str(idChanson) + "', '" + str(idPassage) + "');")
+                idPassage += 1
+    print(chansons)
