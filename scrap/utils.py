@@ -401,37 +401,37 @@ def emission(browser, u, cur, dateOk, idEmission, idPassage):
                         str(idChanson) + "', '" + str(idPassage) + "');")
             idPassage += 1
 
-            if j == 6:
-                MC = ligne.split(' : ')[1].replace("'", "''")
-                chansons.append(MC)
-                print(chansons)
-                setNewPassage(cur, dateOk, categories,
-                              j, idEmission, idPassage, True)
-                idChanson = getIdChanson(cur, MC)
-                cur.execute("INSERT INTO public.\"Chanson_Passage\"(\"Chanson_id\", \"Passage_id\")	VALUES ('" +
-                            str(idChanson) + "', '" + str(idPassage) + "');")
-                idPassage += 1
+        if j == 6:
+            MC = ligne.split(' : ')[1].replace("'", "''")
+            chansons.append(MC)
+            print(chansons)
+            setNewPassage(cur, dateOk, categories,
+                          j, idEmission, idPassage, True)
+            idChanson = getIdChanson(cur, MC)
+            cur.execute("INSERT INTO public.\"Chanson_Passage\"(\"Chanson_id\", \"Passage_id\")	VALUES ('" +
+                        str(idChanson) + "', '" + str(idPassage) + "');")
+            idPassage += 1
 
-            if j == 7:
-                (c1, c2) = getChoisieNonChoisie(u, j, browser)
-                chansons.append((c1, c2))
-                print(chansons)
-                # Pour la chanson choisie
-                c1 = c1.replace("'", "''")
-                setNewPassage(cur, dateOk, categories,
-                              j, idEmission, idPassage, True)
-                idChanson = getIdChanson(cur, c1)
-                cur.execute("INSERT INTO public.\"Chanson_Passage\"(\"Chanson_id\", \"Passage_id\")	VALUES ('" +
-                            str(idChanson) + "', '" + str(idPassage) + "');")
-                idPassage += 1
-                # Pour la chanson non choisie
-                c2 = c2.replace("'", "''")
-                setNewPassage(cur, dateOk, categories,
-                              j, idEmission, idPassage, False)
-                idChanson = getIdChanson(cur, c2)
-                cur.execute("INSERT INTO public.\"Chanson_Passage\"(\"Chanson_id\", \"Passage_id\")	VALUES ('" +
-                            str(idChanson) + "', '" + str(idPassage) + "');")
-                idPassage += 1
+        if j == 7:
+            (c1, c2) = getChoisieNonChoisie(u, j, browser)
+            chansons.append((c1, c2))
+            print(chansons)
+            # Pour la chanson choisie
+            c1 = c1.replace("'", "''")
+            setNewPassage(cur, dateOk, categories,
+                          j, idEmission, idPassage, True)
+            idChanson = getIdChanson(cur, c1)
+            cur.execute("INSERT INTO public.\"Chanson_Passage\"(\"Chanson_id\", \"Passage_id\")	VALUES ('" +
+                        str(idChanson) + "', '" + str(idPassage) + "');")
+            idPassage += 1
+            # Pour la chanson non choisie
+            c2 = c2.replace("'", "''")
+            setNewPassage(cur, dateOk, categories,
+                          j, idEmission, idPassage, False)
+            idChanson = getIdChanson(cur, c2)
+            cur.execute("INSERT INTO public.\"Chanson_Passage\"(\"Chanson_id\", \"Passage_id\")	VALUES ('" +
+                        str(idChanson) + "', '" + str(idPassage) + "');")
+            idPassage += 1
     print(chansons)
     return idPassage
 

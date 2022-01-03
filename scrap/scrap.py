@@ -95,6 +95,7 @@ while lastDate < dateActuelle:
 
             # Commit en base
             conn.commit()
+            input()
             donneesRecoltees = True
 
         # Sinon c'est une émission classique, on incrémente u de 2
@@ -107,3 +108,7 @@ while lastDate < dateActuelle:
     lastDate = utils.getLastDate(cur)
     if lastDate == "Erreur":
         raise Exception("Dernière date non complète")
+
+    # Si on est un premier de mois, on change de page
+    if lastDate.day == 1:
+        chemin = utils.chemin(lastDate)
