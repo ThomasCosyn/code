@@ -31,9 +31,8 @@ lastDate = utils.getLastDate(cur)
 if lastDate == "Erreur":
     raise Exception("Dernière date non complète")
 chemin = utils.chemin(lastDate)
-print(chemin)
-print(cheminActuel)
 
+# Gestion du pop-up d'arrivée sur le site
 buttonClicked = False
 
 while lastDate < dateActuelle:
@@ -49,6 +48,10 @@ while lastDate < dateActuelle:
             '//div[@class="NN0_TB_DIsNmMHgJWgT7U XHcr6qf5Sub2F2zBJ53S_"]')
         button.click()
         buttonClicked = True
+
+    # Récupération du calendrier
+    cal = utils.calendrier(browser)
+    mauvaisJours, speciales = cal
 
     jours = browser.find_elements_by_xpath('//*[@id="mw-content-text"]/div/h2')
     nbJours = len(jours)
@@ -68,27 +71,39 @@ while lastDate < dateActuelle:
         print(dateOk)
         print("i = " + str(i) + ", u = " + str(u))
 
-        # Si on est le jour suivant, que ce n'est pas un prime et que l'on a pas encore récolté les données (c'est-à-dire si on est au bon endroit)
-        if int(dateListe[1]) > lastDate.day and not donneesRecoltees and len(dateListe) == 3:
+        # Si c'est un mauvais jour, on ne fait rien
+        if dateListe[1] in mauvaisJours:
+            print("Le {0} est un jour où l'émission a été annulée, je ne fais rien".format(
+                dateListe[1]))
+
+        # Si c'est une émission spéciale, il y a en général 4 duels donc on incrémente de 4 la variable u
+        elif dateListe[1] in speciales and len(dateListe) > 3:
+            print("Le {0} il y a eu une émission spéciale, j'incrémente donc la variable u de 4".format(
+                dateListe[1]))
+            u += 4
+
+        # Sinon on est un jour postérieur au dernier jour de récupération, que l'on a pas encore récolté les données et que c'est bien une émission classique, on récupère les données
+        elif int(dateListe[1]) > lastDate.day and not donneesRecoltees and len(dateListe) == 3:
 
             # Récupération des chansons des deux émissions
             for _ in range(2):
-                utils.emission(browser, u, cur,
-                               dateOk, idEmission, idPassage)
+                idPassage = utils.emission(browser, u, cur,
+                                           dateOk, idEmission, idPassage)
+                print(idPassage)
                 u += 1
                 idEmission += 1
 
             # Commit en base
             conn.commit()
+            donneesRecoltees = True
 
-        # Sinon on fait avancer le compteur u du bon nombre d'unités
+        # Sinon c'est une émission classique, on incrémente u de 2
         else:
+            print("Le {0} il y a eu une émission classique, on incrémente u de 2".format(
+                dateListe[1]))
+            u += 2
 
-            nbP = browser.find_elements_by_xpath(
-                '/html/body/div[4]/div[2]/div[2]/main/div[3]/div/div/p')
-            if nbP == 4:
-                u += 4
-
+    # Mise à jour de la variable lastDate
     lastDate = utils.getLastDate(cur)
     if lastDate == "Erreur":
         raise Exception("Dernière date non complète")

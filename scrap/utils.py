@@ -1,5 +1,6 @@
 import selenium.common.exceptions
 import psycopg2
+import re
 
 conversionMois = {1: "Janvier", 2: "Février", 3: "Mars", 4: "Avril", 5: "Mai", 6: "Juin",
                   7: "Juillet", 8: "Août", 9: "Septembre", 10: "Octobre", 11: "Novembre", 12: "Décembre"}
@@ -371,10 +372,9 @@ def chemin(date):
 # Fonction récoltant les chansons pour un émission données
 
 
-def emission(chansons, browser, u, cur, dateOk, idEmission, idPassage):
+def emission(browser, u, cur, dateOk, idEmission, idPassage):
 
     chansons = []
-    # C'est parti pour la première émission
     for j in range(1, 8):
 
         ligne = browser.find_element_by_xpath(
@@ -433,3 +433,45 @@ def emission(chansons, browser, u, cur, dateOk, idEmission, idPassage):
                             str(idChanson) + "', '" + str(idPassage) + "');")
                 idPassage += 1
     print(chansons)
+    return idPassage
+
+# Fonction parcourant le calendrier et donnant la liste des jours pour lesquels il ne faut pas incrémenter le compteur u
+
+
+def calendrier(browser):
+
+    lignes = browser.find_elements_by_xpath(
+        '/html/body/div[4]/div[3]/div[4]/main/div[3]/div/div/big[1]/table/tbody/tr')
+    colonnes = browser.find_elements_by_xpath(
+        '/html/body/div[4]/div[3]/div[4]/main/div[3]/div/div/big[1]/table/tbody/tr[2]/td')
+
+    nbLignes, nbColonnes = len(lignes), len(colonnes)
+    mauvaisJours = []
+    speciales = []
+
+    # On parcourt le calendrier
+    for l in range(2, nbLignes + 1):
+        for c in range(1, nbColonnes-1):
+
+            try:
+                # Récupération du jour et des couleurs de la case du calendrier
+                case = browser.find_element_by_xpath(
+                    '/html/body/div[4]/div[3]/div[4]/main/div[3]/div/div/big[1]/table/tbody/tr[{0}]/td[{1}]'.format(str(l), str(c)))
+                rgb = case.value_of_css_property('background-color')
+                couleurs = re.findall(r'[0-9]{1,3}', rgb)
+                jour = case.text
+                speciale = re.findall(r'[0-9]{1,2} - [A-Za-z]{1,}', jour)
+
+                # Si c'est une émission annulée on récupère le jour auquel c'est arrivé
+                if couleurs != ['57', '255', '20', '1'] and jour != '':
+                    mauvaisJours.append(jour)
+
+                # Si c'est une émission spéciale, on récupère également le jour
+                elif len(speciale) > 0:
+                    jour = re.findall(r'[0-9]{1,2}', speciale[0])[0]
+                    speciales.append(jour)
+
+            except selenium.common.exceptions.NoSuchElementException:
+                pass
+
+    return mauvaisJours, speciales
