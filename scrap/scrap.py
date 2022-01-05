@@ -80,7 +80,7 @@ while lastDate < dateActuelle:
         elif dateListe[1] in speciales and len(dateListe) > 3:
             print("Le {0} il y a eu une émission spéciale, j'incrémente donc la variable u de 4".format(
                 dateListe[1]))
-            u += 4
+            u += 5
 
         # Sinon on est un jour postérieur au dernier jour de récupération, que l'on a pas encore récolté les données et que c'est bien une émission classique, on récupère les données
         elif int(dateListe[1]) > lastDate.day and not donneesRecoltees and len(dateListe) == 3:
@@ -95,7 +95,6 @@ while lastDate < dateActuelle:
 
             # Commit en base
             conn.commit()
-            input()
             donneesRecoltees = True
 
         # Sinon c'est une émission classique, on incrémente u de 2
