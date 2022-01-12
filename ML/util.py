@@ -1,4 +1,5 @@
 import numpy as np
+import psycopg2
 
 # Fonction fabriquant un histogramme à partir d'un dataframe
 # Prend en argument le dataframe et le nombre de classes
@@ -40,3 +41,13 @@ def scoreHisto(df, valeursHisto, colonne, fonction):
         df[fonction][i] = valeursHisto['hauteurs'][classe-1]/taille_ech
 
     return df
+
+# Fonction se connectant à la base locale
+
+
+def connexion():
+    conn = psycopg2.connect(host="localhost",
+                            database="NOPLP",
+                            user="postgres",
+                            password="Objectifcentrale2019!")
+    return (conn, conn.cursor())

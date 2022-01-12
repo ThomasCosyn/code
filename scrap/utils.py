@@ -301,6 +301,9 @@ def getIdChanson(cur, chanson):
     if chanson in ["Mon truc en plume", "Mon truc en plumes"]:
         chanson = "Mon truc en plume"
 
+    if chanson in ["Un monde parfait (Ilona)", "Un monde parfait (Ilona Mitrecey)"]:
+        chanson = "Un monde parfait (Ilona)"
+
     cur.execute(
         "SELECT id FROM public.\"Chanson\" WHERE similarity(unaccent(titre), unaccent('" + chanson + "')) > 0.9;")
 

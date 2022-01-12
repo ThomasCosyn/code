@@ -28,7 +28,7 @@ option.add_argument('--ignore-ssl-errors')
 browser = webdriver.Chrome(ChromeDriverManager().install(), options=option)
 
 
-lien = 'https://n-oubliez-pas-les-paroles.fandom.com/fr/wiki/Décembre_2021'
+lien = 'https://n-oubliez-pas-les-paroles.fandom.com/fr/wiki/Janvier_2022'
 
 # Gestion du temps
 
@@ -52,17 +52,17 @@ button.click()
 
 jours = browser.find_elements_by_xpath('//*[@id="mw-content-text"]/div/h2')
 nbJours = len(jours)
-u = 27
+u = 24
 
 # On itère sur les journées
-for i in range(17, nbJours+1):
+for i in range(11, nbJours+1):
 
     date = browser.find_element_by_xpath(
         '//*[@id="mw-content-text"]/div/h2[' + str(i) + ']').text
     dateListe = date.split(' ')
 
     # On enlève les primes et émissions particulières
-    if len(dateListe) == 3 and i not in [4, 5]:
+    if len(dateListe) == 3:
         dateOk = annee + '-' + \
             str(mois[dateListe[2]]) + '-' + \
             dateListe[1].replace('1er', '1')
@@ -203,4 +203,4 @@ for i in range(17, nbJours+1):
 
     else:
         if len(dateListe) > 3:
-            u += 4
+            u += 6
