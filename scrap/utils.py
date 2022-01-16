@@ -185,7 +185,7 @@ def getIdChanson(cur, chanson):
         rep = input("Clara Luciani ou Vitaa ? ")
         chanson = chanson + " (" + rep + ")"
 
-    if chanson == "La Parisienne":
+    if chanson in ["La Parisienne", "La parisienne"]:
         rep = input("Christophe Maé ou Marie-Paule Belle ? ")
         chanson = chanson + " (" + rep + ")"
 
