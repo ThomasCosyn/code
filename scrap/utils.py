@@ -215,9 +215,19 @@ def getIdChanson(cur, chanson):
             "Charles Aznavour ou Tayc ? ")
         chanson = chanson + " (" + rep + ")"
 
+    if chanson == "Dernière danse":
+        rep = input(
+            "Kyo ou Indila ? ")
+        chanson = chanson + " (" + rep + ")"
+
     if chanson == "L''aventurier":
         rep = input(
             "Indochine ou Jacques Dutronc ? ")
+        chanson = chanson + " (" + rep + ")"
+
+    if chanson == "Un monde parfait":
+        rep = input(
+            "Ilona ou Les Innocents ? ")
         chanson = chanson + " (" + rep + ")"
 
     if chanson in ["Vous les copains", "Vous les copains (je ne vous oublierai jamais)"]:
