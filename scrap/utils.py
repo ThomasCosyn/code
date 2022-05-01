@@ -230,6 +230,22 @@ def getIdChanson(cur, chanson):
             "Ilona ou Les Innocents ? ")
         chanson = chanson + " (" + rep + ")"
 
+    if chanson == "Je te promets":
+        rep = input("Johnny Hallyday ou Zaho ? ")
+        chanson = chanson + " (" + rep + ")"
+
+    if chanson == "J''attendrai":
+        rep = input("Dalida ou Claude François ? ")
+        chanson = chanson + " (" + rep + ")"
+
+    if chanson == "Je suis un homme":
+        rep = input("Zazie ou Michel Polnareff ? ")
+        chanson = chanson + " (" + rep + ")"
+
+    if chanson == "Nous":
+        rep = input("Hervé Vilard ou Julien Doré ? ")
+        chanson = chanson + " (" + rep + ")"
+
     if chanson in ["Vous les copains", "Vous les copains (je ne vous oublierai jamais)"]:
         chanson = "Vous les copains (je ne vous oublierai jamais)"
 
@@ -313,6 +329,9 @@ def getIdChanson(cur, chanson):
 
     if chanson in ["Un monde parfait (Ilona)", "Un monde parfait (Ilona Mitrecey)"]:
         chanson = "Un monde parfait (Ilona)"
+
+    if chanson in ["Respect", "Respect (Alliance Ethnik)"]:
+        chanson = "Respect"
 
     cur.execute(
         "SELECT id FROM public.\"Chanson\" WHERE similarity(unaccent(titre), unaccent('" + chanson + "')) > 0.9;")

@@ -28,7 +28,7 @@ option.add_argument('--ignore-ssl-errors')
 browser = webdriver.Chrome(ChromeDriverManager().install(), options=option)
 
 
-lien = 'https://n-oubliez-pas-les-paroles.fandom.com/fr/wiki/Mars_2022'
+lien = 'https://n-oubliez-pas-les-paroles.fandom.com/fr/wiki/Avril_2022'
 
 # Gestion du temps
 
@@ -52,10 +52,10 @@ button.click()
 
 jours = browser.find_elements_by_xpath('//*[@id="mw-content-text"]/div/h2')
 nbJours = len(jours)
-u = 9
+u = 63
 
 # On itère sur les journées
-for i in range(6, nbJours+1):
+for i in range(30, nbJours+1):
 
     date = browser.find_element_by_xpath(
         '//*[@id="mw-content-text"]/div/h2[' + str(i) + ']').text
