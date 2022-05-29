@@ -1,6 +1,6 @@
 import random as rd
 
-max = 471
+max = 443
 nbBornes = max//100 + 1
 bornes = [100*(i+1) for i in range(nbBornes)]
 bornes[-1] = max

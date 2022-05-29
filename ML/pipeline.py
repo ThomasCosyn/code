@@ -74,5 +74,5 @@ def prediction(dateSimule):
 
 clustering()
 input("Please change the definition of Mêmes Chansons in PostgreSQL")
-prediction("'2022-05-07'")
+prediction("'2022-06-04'")
 print("Pipeline has successfully run !")
