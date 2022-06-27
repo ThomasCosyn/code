@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.cluster import KMeans
 import numpy as np
+from catboost import CatBoostClassifier, Pool
 
 
 def updateQuery(c, titre):
@@ -72,7 +73,52 @@ def prediction(dateSimule):
     df.to_csv('ML/test.csv', sep=";", encoding='utf8')
 
 
+def predictionCatboost(dateSimule):
+
+    print("Starting prediction for date : ", dateSimule)
+
+    # Requête
+    print("Querying data...")
+    conn, cur = util.connexion()
+    df = pd.read_sql_query(
+        "SELECT * FROM public.\"GenereDatasetClassif\"('{0}', ('{0}'::date - INTERVAL'30 day')::date) WHERE \"année\" <= {1}".format(dateSimule, dateSimule[0:4]), con=conn)
+
+    # Data processing
+    print("Processing data...")
+    df = df.drop(columns=['id', 'Chanson_id'])
+    reversed_cat = {'50': 1, '40': 2, '30': 3,
+                    '20': 4, '10': 5, 'MC': 6, '20k': 7, None: 8}
+    df = df.replace({'categorie': reversed_cat})
+    test_labels = df['categorie']
+    test_data = df.drop(columns=['categorie'])
+    test_pool = Pool(test_data,
+                     test_labels,
+                     cat_features=['titre', 'artiste'])
+
+    # Chargement du modèle
+    print("Model loading...")
+    from_file = CatBoostClassifier()
+    model = from_file.load_model("ML/catboostModel.cbm", format="cbm")
+
+    # Prédiction
+    print("Predicting probabilities...")
+    test_data["pred"] = model.predict(test_pool)
+    preds_proba = model.predict_proba(test_pool)
+    test_data["proba50"] = preds_proba[:, 0]
+    test_data["proba40"] = preds_proba[:, 1]
+    test_data["proba30"] = preds_proba[:, 2]
+    test_data["proba20"] = preds_proba[:, 3]
+    test_data["proba10"] = preds_proba[:, 4]
+    test_data["probaMC"] = preds_proba[:, 5]
+    test_data["proba20k"] = preds_proba[:, 6]
+    test_data["probaPP"] = preds_proba[:, 7]
+
+    # Ecriture dans le fichier de sortie
+    print("Writing the output to csv file...")
+    test_data.to_csv('ML/predCatboost.csv', sep=";", encoding='utf8')
+
+
 clustering()
 input("Please change the definition of Mêmes Chansons in PostgreSQL")
-prediction("'2022-06-04'")
+predictionCatboost("2022-07-02")
 print("Pipeline has successfully run !")

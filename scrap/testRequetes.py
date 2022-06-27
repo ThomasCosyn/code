@@ -8,5 +8,5 @@ conn = psycopg2.connect(host="localhost",
                         password="Objectifcentrale2019!")
 cur = conn.cursor()
 
-print(utils.getIdChanson(cur, "Nous"))
-print(utils.getIdChanson(cur, "Mille colombes"))
+print(utils.getIdChanson(cur, "Quand j''serai K.-O."))
+print(utils.getIdChanson(cur, "Indélébile"))

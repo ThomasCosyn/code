@@ -40,7 +40,7 @@ def getChoisieNonChoisie(u, j, browser):
                 em1chanson50c = browser.find_element_by_xpath(
                     '//*[@id="mw-content-text"]/div/ul[' + str(u) + ']/li[' + str(j) + ']/a[2]/b').text
                 notBold = browser.find_elements_by_xpath(
-                    '//*[@id="mw-content-text"]/div/ul[' + str(u) + ']/li[' + str(j) + ']/a')
+                    '//*[@id="mw-content-text"]/div/ul[' + str(u) + ']/li[' + str(j) + ']/a[1]')
                 em1chanson50nc = getNC(notBold)
 
             except selenium.common.exceptions.NoSuchElementException:
@@ -59,7 +59,7 @@ def getChoisieNonChoisie(u, j, browser):
                         em1chanson50c = browser.find_element_by_xpath(
                             '//*[@id = "mw-content-text"]/div/ul[' + str(u) + ']/li[' + str(j) + ']/a[2]/b').text
                         notBold = browser.find_elements_by_xpath(
-                            '//*[@id = "mw-content-text"]/div/ul[' + str(u) + ']/li[' + str(j) + ']/a')
+                            '//*[@id = "mw-content-text"]/div/ul[' + str(u) + ']/li[' + str(j) + ']/a[1]')
                         em1chanson50nc = getNC(notBold)
                     except selenium.common.exceptions.NoSuchElementException:
 
@@ -71,7 +71,16 @@ def getChoisieNonChoisie(u, j, browser):
                                 '//*[@id = "mw-content-text"]/div/ul[' + str(u) + ']/li[' + str(j) + ']/a')
                             em1chanson50nc = getNC(notBold)
                         except selenium.common.exceptions.NoSuchElementException:
-                            pass
+
+                            # Cas Faut rigoler / Le petit pain au chocolat
+                            try:
+                                em1chanson50c = browser.find_element_by_xpath(
+                                    '//*[@id = "mw-content-text"]/div/ul[' + str(u) + ']/li[' + str(j) + ']/a[3]/b').text
+                                notBold = browser.find_elements_by_xpath(
+                                    '//*[@id = "mw-content-text"]/div/ul[' + str(u) + ']/li[' + str(j) + ']/a[2]')
+                                em1chanson50nc = getNC(notBold)
+                            except selenium.common.exceptions.NoSuchElementException:
+                                pass
 
     if (em1chanson50c, em1chanson50nc) == ('', ''):
         # Cas La fête / Ta fête 2 juin 2020
@@ -332,6 +341,15 @@ def getIdChanson(cur, chanson):
 
     if chanson in ["Respect", "Respect (Alliance Ethnik)"]:
         chanson = "Respect"
+
+    if chanson in ["Ce rêve bleu", "Ce rêve bleu (Karine Costa et Paolo Domingo)"]:
+        chanson = "Ce rêve bleu"
+
+    if chanson in ["Ma liberté", "Ma liberté (Serge Reggiani)"]:
+        chanson = "Ma liberté"
+
+    if chanson in ["Quand j''serai K.-O.", "Quand j'serai KO"]:
+        chanson = "Quand j''serai KO"
 
     cur.execute(
         "SELECT id FROM public.\"Chanson\" WHERE similarity(unaccent(titre), unaccent('" + chanson + "')) > 0.9;")
