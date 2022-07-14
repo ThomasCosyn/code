@@ -351,6 +351,12 @@ def getIdChanson(cur, chanson):
     if chanson in ["Quand j''serai K.-O.", "Quand j'serai KO"]:
         chanson = "Quand j''serai KO"
 
+    if chanson in ["La meilleure (Hatik et Jok''Air)", "La meilleure"]:
+        chanson = "La meilleure"
+
+    if chanson in ["Jusqu''au bout (Amel Bent et Imen Es)", "Jusqu''au bout"]:
+        chanson = "Jusqu''au bout"
+
     cur.execute(
         "SELECT id FROM public.\"Chanson\" WHERE similarity(unaccent(titre), unaccent('" + chanson + "')) > 0.9;")
 

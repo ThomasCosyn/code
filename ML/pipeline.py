@@ -6,6 +6,7 @@ import seaborn as sns
 from sklearn.cluster import KMeans
 import numpy as np
 from catboost import CatBoostClassifier, Pool
+import shutil
 
 
 def updateQuery(c, titre):
@@ -116,9 +117,11 @@ def predictionCatboost(dateSimule):
     # Ecriture dans le fichier de sortie
     print("Writing the output to csv file...")
     test_data.to_csv('ML/predCatboost.csv', sep=";", encoding='utf8')
+    shutil.copyfile("ML/predCatboost.csv",
+                    "archive/{0}.csv".format(dateSimule))
 
 
-clustering()
-input("Please change the definition of Mêmes Chansons in PostgreSQL")
-predictionCatboost("2022-07-02")
+# clustering()
+#input("Please change the definition of Mêmes Chansons in PostgreSQL")
+predictionCatboost("2022-07-13")
 print("Pipeline has successfully run !")
