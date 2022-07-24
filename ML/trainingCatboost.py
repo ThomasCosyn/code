@@ -1,8 +1,7 @@
 import pandas as pd
-import os
 from catboost import CatBoostClassifier, Pool
-import numpy as np
 import sklearn.metrics as skl
+import matplotlib.pyplot as plt
 
 # Chargement du dataset
 print("Dataset loading...")
@@ -33,13 +32,15 @@ test_pool = Pool(test_data,
 
 # Training model
 print("Training the CatBoost model...")
-model = CatBoostClassifier(iterations=50,
+model = CatBoostClassifier(iterations=10,
                            depth=10,
                            learning_rate=1,
                            loss_function='MultiClass',
                            verbose=True,
-                           class_weights=[0.025, 0.025, 0.025, 0.025, 0.025, 0.425, 0.425, 0.025])
-model.fit(train_data, train_labels, cat_features=['titre', 'artiste'])
+                           # class_weights=[0.025, 0.025, 0.025, 0.025, 0.025, 0.435, 0.435, 0.005])
+                           class_weights=[0.005, 0.005, 0.005, 0.005, 0.005, 2, 2, 0.005])
+model.fit(train_data, train_labels, cat_features=[
+          'titre', 'artiste'])
 
 # Feature importance
 print("Features importance :")
@@ -59,4 +60,7 @@ preds_proba = model.predict_proba(test_pool)
 print("Confusion matrix :")
 test_data["pred"] = preds_class
 test_data["labels"] = test_labels
-print(skl.confusion_matrix(test_data['labels'], test_data['pred']))
+dispCM = skl.ConfusionMatrixDisplay(skl.confusion_matrix(
+    test_data['labels'], test_data['pred']))
+dispCM.plot()
+plt.show()

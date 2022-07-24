@@ -1,6 +1,9 @@
 import numpy as np
 import psycopg2
 import pandas as pd
+from catboost import CatBoostClassifier
+import sklearn.metrics as skl
+
 
 # Fonction fabriquant un histogramme à partir d'un dataframe
 # Prend en argument le dataframe et le nombre de classes
@@ -86,3 +89,79 @@ def connexion():
                             user="postgres",
                             password="Objectifcentrale2019!")
     return (conn, conn.cursor())
+
+
+def trainModel(train_data, train_labels, cat_features):
+
+    print("Training the CatBoost model...")
+    model = CatBoostClassifier(iterations=10,
+                               depth=10,
+                               learning_rate=1,
+                               loss_function='MultiClass',
+                               verbose=True)
+    model.fit(train_data, train_labels, cat_features=cat_features)
+
+    return model
+
+
+def confusionMatrixCalculation(model, test_pool, test_data, test_labels):
+
+    # Prediction on test set
+    print("Predicting on the test set...")
+    preds_class = model.predict(test_pool)
+    preds_proba = model.predict_proba(test_pool)
+    preds = model.predict_log_proba(test_pool)
+
+    # Confusion matrix
+    print("Confusion matrix :")
+    test_data["pred"] = preds_class
+    test_data["labels"] = test_labels
+    confusionMatrix = skl.confusion_matrix(
+        test_data['labels'], test_data['pred'])
+
+    return confusionMatrix
+
+
+def precisionOrRecall(metric, c, confusionMatrix):
+    res = 0
+    if metric == "Precision":
+        res = confusionMatrix[c, c]/sum(confusionMatrix[c, ])
+    elif metric == "Recall":
+        res = confusionMatrix[c, c]/sum(confusionMatrix[:, c])
+    else:
+        raise("metric argument must be either Precision or Recall")
+    return round(res * 100, 1)
+
+
+def F1score(p, r):
+    if p == 0 and r == 0:
+        return 0
+    else:
+        return round(2/(1/p + 1/r), 1)
+
+
+def metricCalculation(confusionMatrix):
+
+    # Calcul de la précision
+    P5 = precisionOrRecall("Precision", 5, confusionMatrix)
+    print("P5 = {0}".format(P5))
+    P6 = precisionOrRecall("Precision", 6, confusionMatrix)
+    print("P6 = {0}".format(P6))
+    l = 0.9
+    precision = round(l*P5 + (1-l)*P6, 1)
+    print("Precision = {0}".format(precision))
+
+    # Calcul du recall
+    R5 = precisionOrRecall("Recall", 5, confusionMatrix)
+    print("R5 = {0}".format(R5))
+    R6 = precisionOrRecall("Recall", 6, confusionMatrix)
+    print("R6 = {0}".format(R6))
+    mu = 0.5
+    recall = round(mu*R5 + (1-mu)*R6, 1)
+    print("Recall = {0}".format(recall))
+
+    # Calcul du F1-score
+    F1 = F1score(precision, recall)
+    print("F1-score = {0}".format(F1))
+
+    return {"Precision": precision, "Recall": recall, "F1score": F1}

@@ -52,10 +52,10 @@ button.click()
 
 jours = browser.find_elements_by_xpath('//*[@id="mw-content-text"]/div/h2')
 nbJours = len(jours)
-u = 3
+u = 26
 
 # On itère sur les journées
-for i in range(4, nbJours+1):
+for i in range(16, nbJours+1):
 
     date = browser.find_element_by_xpath(
         '//*[@id="mw-content-text"]/div/h2[' + str(i) + ']').text

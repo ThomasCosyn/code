@@ -123,5 +123,5 @@ def predictionCatboost(dateSimule):
 
 # clustering()
 #input("Please change the definition of Mêmes Chansons in PostgreSQL")
-predictionCatboost("2022-07-13")
+predictionCatboost("2022-07-23")
 print("Pipeline has successfully run !")
