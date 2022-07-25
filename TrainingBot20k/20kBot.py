@@ -1,13 +1,9 @@
 # On importe selenium
-from matplotlib.pyplot import pause
 from selenium import webdriver
 import selenium
 import selenium.common.exceptions
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
 import time
-import os
-import psycopg2
+from selenium.webdriver.common.action_chains import ActionChains
 from webdriver_manager.chrome import ChromeDriverManager
 
 # Définition des options de navigation
@@ -26,26 +22,31 @@ browser.get(lien)
 # On attend une seconde
 time.sleep(1)
 # Puis on clique sur le bouton accepter
-button = browser.find_element_by_xpath(
-    '/html/body/ytd-app/ytd-consent-bump-v2-lightbox/tp-yt-paper-dialog/div[4]/div[2]/div[5]/div[2]/ytd-button-renderer[2]/a')
-button.click()
-
-# On rentre dans le iframe de lecture de vidéo
-# browser.switch_to.frame(0)
+try:
+    button = browser.find_element_by_xpath(
+        '/html/body/ytd-app/ytd-consent-bump-v2-lightbox/tp-yt-paper-dialog/div[4]/div[2]/div[6]/div[1]/ytd-button-renderer[1]/a/tp-yt-paper-button')
+    button.click()
+except selenium.common.exceptions.NoSuchElementException:
+    pass
 
 # On met sur pause (Et je coupe le son)
-# pauseButton = browser.find_element_by_xpath(
-#     '//*[@id="movie_player"]/div[26]/div[2]/div[1]/button')
-# #pauseButton = browser.find_element_by_('ytp-play-button ytp-button')
-# browser.execute_script("arguments[0].click();", pauseButton)
-# pauseButton.click()
 pauseButton = browser.find_element_by_tag_name('video')
-print(pauseButton)
-print(type(pauseButton))
-browser.implicitly_wait(10)
-browser.execute_script("document.getElementsByTagName('video')[0].pause()")
+# print(pauseButton)
+# print(type(pauseButton))
+# browser.implicitly_wait(10)
+# browser.execute_script("document.getElementsByTagName('video')[0].pause()")
 
 # On récupère la durée
-# duree = browser.find_element_by_xpath(
-#     '//*[@id="movie_player"]/div[26]/div[2]/div[1]/div[1]/span[2]/span[3]').text
-# print(duree)
+duree = browser.find_element_by_class_name('ytp-time-duration').text
+print("Durée de la vidéo : {}".format(duree))
+
+# On clique sur la vidéo pour mettre en pause
+video = browser.find_element_by_id('player')
+x_body_offset = video.location["x"]
+y_body_offset = video.location["y"]
+print("Body coordinates : {}, {}".format(x_body_offset, y_body_offset))
+time.sleep(5)
+actions = ActionChains(browser)
+# actions.move_to_element_with_offset(
+#     video, -x_body_offset, -y_body_offset).click()
+actions.move_by_offset(30, 100).click().perform()
