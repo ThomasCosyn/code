@@ -14,7 +14,7 @@ def updateQuery(c, titre):
     return "UPDATE public.\"Chanson\" SET \"clusterID\"= {} WHERE titre = '{}';".format(c, titre)
 
 
-def clustering():
+def clustering(n):
 
     print("Starting clustering function...")
 
@@ -23,13 +23,22 @@ def clustering():
     conn, cur = util.connexion()
     df = pd.read_sql_query('SELECT titre, public."NbPassagesMC"(titre,current_date), public."NbPassages50"(titre,current_date),	public."NbPassages40"(titre,current_date), public."NbPassages30"(titre,current_date), public."NbPassages20"(titre,current_date), public."NbPassages20k"(titre,current_date) FROM public."Chanson"', con=conn)
 
-    # K-means pour n = 5
+    # K-means pour le nombre de clusters entré en paramètre
     print("K-means")
-    kmeans = KMeans(n_clusters=5).fit(
+    kmeans = KMeans(n_clusters=n).fit(
         df[['NbPassagesMC', 'NbPassages50', 'NbPassages40', 'NbPassages30', 'NbPassages20', 'NbPassages20k']])
     centroids = kmeans.cluster_centers_
     print(centroids)
+
+    # On réordonne les clusters par croissance du nombre de passage moyen en MC
+    dico = {}
+    centro = centroids[:, 0].argsort()
+    for i in range(0, 10):
+        dico[centro[i]] = i
+
+    print(dico)
     df['cluster'] = kmeans.labels_
+    df['cluster'] = df['cluster'].map(dico)
 
     # On met à jour les clusters dans la base
     print("Database update", end="\n")
@@ -121,7 +130,7 @@ def predictionCatboost(dateSimule):
                     "archive/{0}.csv".format(dateSimule))
 
 
-# clustering()
-#input("Please change the definition of Mêmes Chansons in PostgreSQL")
-predictionCatboost("2022-07-23")
-print("Pipeline has successfully run !")
+clustering(10)
+input("Please change the definition of Mêmes Chansons in PostgreSQL")
+# predictionCatboost("2022-07-23")
+# print("Pipeline has successfully run !")

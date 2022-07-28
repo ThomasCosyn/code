@@ -40,7 +40,7 @@ model = CatBoostClassifier(iterations=10,
                            # class_weights=[0.025, 0.025, 0.025, 0.025, 0.025, 0.435, 0.435, 0.005])
                            class_weights=[0.005, 0.005, 0.005, 0.005, 0.005, 2, 2, 0.005])
 model.fit(train_data, train_labels, cat_features=[
-          'titre', 'artiste'])
+          'titre', 'artiste', 'cluster'])
 
 # Feature importance
 print("Features importance :")
