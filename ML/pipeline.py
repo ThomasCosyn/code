@@ -103,7 +103,7 @@ def predictionCatboost(dateSimule):
     test_data = df.drop(columns=['categorie'])
     test_pool = Pool(test_data,
                      test_labels,
-                     cat_features=['titre', 'artiste'])
+                     cat_features=['titre', 'artiste', 'clusterid'])
 
     # Chargement du modèle
     print("Model loading...")
@@ -130,7 +130,7 @@ def predictionCatboost(dateSimule):
                     "archive/{0}.csv".format(dateSimule))
 
 
-clustering(10)
-input("Please change the definition of Mêmes Chansons in PostgreSQL")
-# predictionCatboost("2022-07-23")
-# print("Pipeline has successfully run !")
+# clustering(10)
+# input("Please change the definition of Mêmes Chansons in PostgreSQL")
+predictionCatboost("2022-07-15")
+print("Pipeline has successfully run !")

@@ -1,6 +1,5 @@
 # On importe selenium
 from selenium import webdriver
-import selenium
 import selenium.common.exceptions
 import time
 from selenium.webdriver.common.action_chains import ActionChains
@@ -13,13 +12,13 @@ option.add_argument("--incognito")
 option.add_argument("--strat-maximised")
 option.add_argument('--ignore-certificate-errors')
 option.add_argument('--ignore-ssl-errors')
+option.add_argument('--log-level=3')
 browser = webdriver.Chrome(ChromeDriverManager().install(), options=option,)
 
 
 lien = 'https://www.youtube.com/watch?v=Mpxaf3KPlcc'
 
 browser.get(lien)
-actions = ActionChains(browser)
 
 # On attend une seconde
 time.sleep(1)
@@ -35,21 +34,6 @@ except selenium.common.exceptions.NoSuchElementException:
 duree = browser.find_element_by_class_name('ytp-time-duration').text
 print("Durée de la vidéo : {}".format(duree))
 
-# Si la vidéo fait 15 secondes, c'est une petite pub, on est obligé de la regarder
-if duree == "0:15":
-    print("Courte pub")
-    time.sleep(15)
-    actions.move_by_offset(30, 100).click().perform()
-    duree = browser.find_element_by_class_name('ytp-time-duration').text
-    print("Durée de la vidéo : {}".format(duree))
-# Si la vidéo est plus longue, c'est une longue pub, on attent 5 secondes puis on la skip
-elif cuts.timestampToSecs(duree) < 120:
-
-    time.sleep(5)
-    actions.move_by_offset(600, 332).click().perform()
-    duree = browser.find_element_by_class_name('ytp-time-duration').text
-    print("Durée de la vidéo : {}".format(duree))
-
 # On récupère la durée de l'intro
 dureeIntro = int(input("Entrer la durée de l'intro en nombre de secondes : "))
 
@@ -57,20 +41,30 @@ dureeIntro = int(input("Entrer la durée de l'intro en nombre de secondes : "))
 breaks = cuts.getBreaksInSecs(duree, dureeIntro)
 print("Les breaks auront lieu au secondes suivantes : {}".format(breaks))
 
+# On récupère le lecteur
+pause = browser.find_element_by_xpath(
+    '//*[@id="movie_player"]/div[28]/div[2]/div[1]/button')
+
 for i in range(1, 6):
+    print("Temps d'attente : {}s".format(breaks[i] - breaks[i - 1]))
+    print("Attente")
     time.sleep(breaks[i] - breaks[i - 1])
-    actions.move_by_offset(30, 100).click().perform()
+    print("Fin de l'attente")
+
+    # Coupure de la musique
+    print("Coupure de la musique")
+    actions = ActionChains(browser)
+    actions.move_to_element_with_offset(pause, 2, 2).click().perform()
     VoF = input("Avez-vous trouvé les bonnes paroles ? ")
+
+    # On a perdu, on quitte la boucle
     if VoF == "Non":
         break
+    # On a gagné, on relance la musique
+    # elif VoF == "Oui":
+    print("Remise de la musique")
+    actions = ActionChains(browser)
+    actions.move_to_element_with_offset(pause, 2, 2).click().perform()
+
 
 print("Bravo vous avez gagné 20000€")
-
-# On clique sur la vidéo pour mettre en pause
-# video = browser.find_element_by_id('player')
-# # x_body_offset = video.location["x"]
-# # y_body_offset = video.location["y"]
-# # print("Body coordinates : {}, {}".format(x_body_offset, y_body_offset))
-# time.sleep(5)
-# actions = ActionChains(browser)
-# actions.move_by_offset(30, 100).click().perform()

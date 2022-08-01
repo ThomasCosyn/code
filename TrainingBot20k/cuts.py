@@ -5,9 +5,12 @@ def secsToTimestamp(time):
 
 
 def timestampToSecs(timestamp):
-    str_split = timestamp.split(":")
-    secs = int(str_split[0])*60 + int(str_split[1])
-    return secs
+    if timestamp == '':
+        return 0
+    else:
+        str_split = timestamp.split(":")
+        secs = int(str_split[0])*60 + int(str_split[1])
+        return secs
 
 
 def getBreaksInSecs(musicLength, introLength):

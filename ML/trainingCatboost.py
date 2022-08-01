@@ -2,6 +2,7 @@ import pandas as pd
 from catboost import CatBoostClassifier, Pool
 import sklearn.metrics as skl
 import matplotlib.pyplot as plt
+import util
 
 # Chargement du dataset
 print("Dataset loading...")
@@ -20,27 +21,32 @@ train = df[0:int(len(df)*0.8)]
 print("Taille du dataset de train : " + str(len(train)))
 test = df[int(len(df)*0.8)+1:]
 print("Taille du dataset de test : " + str(len(test)))
-train_labels = train['categorie']
-train = train.drop(columns=['categorie'])
-train_data = train
+
+# Tau resampling
+tau = 0.3
+dataset = util.buildDataset(train, tau)
+train_labels = dataset['categorie']
+trainSL = dataset.drop(columns=['categorie'])
+train_data = trainSL
+
 test_labels = test['categorie']
 test = test.drop(columns=['categorie'])
 test_data = test
 test_pool = Pool(test_data,
                  test_labels,
-                 cat_features=['titre', 'artiste'])
+                 cat_features=['titre', 'artiste', 'clusterid'])
+
 
 # Training model
 print("Training the CatBoost model...")
 model = CatBoostClassifier(iterations=10,
                            depth=10,
                            learning_rate=1,
-                           loss_function='MultiClass',
+                           loss_function='MultiClassOneVsAll',
                            verbose=True,
-                           # class_weights=[0.025, 0.025, 0.025, 0.025, 0.025, 0.435, 0.435, 0.005])
-                           class_weights=[0.005, 0.005, 0.005, 0.005, 0.005, 2, 2, 0.005])
+                           class_weights=[1, 0, 0.1, 0.5, 0.1, 5, 5, 0.1])
 model.fit(train_data, train_labels, cat_features=[
-          'titre', 'artiste', 'cluster'])
+          'titre', 'artiste', 'clusterid'])
 
 # Feature importance
 print("Features importance :")
@@ -60,7 +66,12 @@ preds_proba = model.predict_proba(test_pool)
 print("Confusion matrix :")
 test_data["pred"] = preds_class
 test_data["labels"] = test_labels
-dispCM = skl.ConfusionMatrixDisplay(skl.confusion_matrix(
-    test_data['labels'], test_data['pred']))
+cm = skl.confusion_matrix(
+    test_data['labels'], test_data['pred'])
+dispCM = skl.ConfusionMatrixDisplay(cm)
 dispCM.plot()
 plt.show()
+
+# Calcul des métriques
+resMetriques = util.metricCalculation(cm)
+print("F1-score : ", resMetriques["F1score"])

@@ -68,13 +68,13 @@ def connexion():
     return (conn, conn.cursor())
 
 
-def trainModel(train_data, train_labels, cat_features, class_weight=[1]*8):
+def trainModel(train_data, train_labels, cat_features, class_weight=[1]*8, loss="MultiClass"):
 
     print("Training the CatBoost model...")
     model = CatBoostClassifier(iterations=10,
                                depth=10,
                                learning_rate=1,
-                               loss_function='MultiClass',
+                               loss_function=loss,
                                class_weights=class_weight,
                                verbose=False)
     model.fit(train_data, train_labels, cat_features=cat_features)
@@ -126,28 +126,31 @@ def F1score(p, r):
         return round(2/(1/p + 1/r), 1)
 
 
-def metricCalculation(confusionMatrix):
+def metricCalculation(confusionMatrix, verbose=False):
 
     # Calcul de la précision
     P5 = precisionOrRecall("Precision", 5, confusionMatrix)
-    print("P5 = {0}".format(P5))
     P6 = precisionOrRecall("Precision", 6, confusionMatrix)
-    print("P6 = {0}".format(P6))
     l = 0.9
     precision = round(l*P5 + (1-l)*P6, 1)
-    print("Precision = {0}".format(precision))
 
     # Calcul du recall
     R5 = precisionOrRecall("Recall", 5, confusionMatrix)
-    print("R5 = {0}".format(R5))
     R6 = precisionOrRecall("Recall", 6, confusionMatrix)
-    print("R6 = {0}".format(R6))
     mu = 0.5
     recall = round(mu*R5 + (1-mu)*R6, 1)
-    print("Recall = {0}".format(recall))
 
     # Calcul du F1-score
     F1 = F1score(precision, recall)
-    print("F1-score = {0}".format(F1))
+
+    # Affichage
+    if verbose:
+        print("P5 = {0}".format(P5))
+        print("P6 = {0}".format(P6))
+        print("Precision = {0}".format(precision))
+        print("R5 = {0}".format(R5))
+        print("R6 = {0}".format(R6))
+        print("Recall = {0}".format(recall))
+        print("F1-score = {0}".format(F1))
 
     return {"Precision": precision, "Recall": recall, "F1score": F1}
