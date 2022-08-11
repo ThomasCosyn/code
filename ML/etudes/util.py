@@ -118,12 +118,16 @@ def precisionOrRecall(metric, c, confusionMatrix):
         raise("metric argument must be either Precision or Recall")
     return round(res * 100, 1)
 
+# Fonction calculant le F1-score un peu customisé
+
 
 def F1score(p, r):
     if p == 0 or r == 0:
         return 0
     else:
         return round(2/(1/p + 1/r), 1)
+
+# Fonction permettant de calculer les métriques
 
 
 def metricCalculation(confusionMatrix, verbose=False):
@@ -154,3 +158,13 @@ def metricCalculation(confusionMatrix, verbose=False):
         print("F1-score = {0}".format(F1))
 
     return {"Precision": precision, "Recall": recall, "F1score": F1}
+
+# Fonction éxécutant un tau-resampling sur le dataset d'entrainement
+
+
+def buildDataset(df, tau):
+    P = df[df.categorie != 8]
+    PP = df[df.categorie == 8]
+    tauPP = PP.sample(frac=tau)
+    res = pd.concat([P, tauPP])
+    return res
