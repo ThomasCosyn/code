@@ -234,6 +234,11 @@ def getIdChanson(cur, chanson):
             "Indochine ou Jacques Dutronc ? ")
         chanson = chanson + " (" + rep + ")"
 
+    if chanson == "Evidemment":
+        rep = input(
+            "France Gall ou Kendji Girac ? ")
+        chanson = chanson + " (" + rep + ")"
+
     if chanson == "Un monde parfait":
         rep = input(
             "Ilona ou Les Innocents ? ")
@@ -253,6 +258,10 @@ def getIdChanson(cur, chanson):
 
     if chanson == "Nous":
         rep = input("Hervé Vilard ou Julien Doré ? ")
+        chanson = chanson + " (" + rep + ")"
+
+    if chanson == "Comment lui dire":
+        rep = input("France Gall ou Roméo & Juliette ? ")
         chanson = chanson + " (" + rep + ")"
 
     if chanson in ["Vous les copains", "Vous les copains (je ne vous oublierai jamais)"]:
@@ -356,6 +365,9 @@ def getIdChanson(cur, chanson):
 
     if chanson in ["Jusqu''au bout (Amel Bent et Imen Es)", "Jusqu''au bout"]:
         chanson = "Jusqu''au bout"
+
+    if chanson in ["Pokémon", "Pokémon (attrapez-les tous)"]:
+        chanson = "Pokémon"
 
     cur.execute(
         "SELECT id FROM public.\"Chanson\" WHERE similarity(unaccent(titre), unaccent('" + chanson + "')) > 0.9;")

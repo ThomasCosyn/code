@@ -8,5 +8,5 @@ conn = psycopg2.connect(host="localhost",
                         password="Objectifcentrale2019!")
 cur = conn.cursor()
 
-print(utils.getIdChanson(cur, "Laisse-moi vivre ma vie"))
-print(utils.getIdChanson(cur, "Jusqu''au bout (Amel Bent et Imen Es)"))
+print(utils.getIdChanson(cur, "Magic in the air"))
+print(utils.getIdChanson(cur, "Honk-Kong star"))

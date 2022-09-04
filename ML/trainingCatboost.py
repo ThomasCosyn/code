@@ -44,7 +44,7 @@ model = CatBoostClassifier(iterations=10,
                            learning_rate=1,
                            loss_function='MultiClassOneVsAll',
                            verbose=True,
-                           class_weights=[0.25, 0.65, 0.325, 0.425, 0.175, 1.9375, 3.875, 0])
+                           class_weights=[0.25, 0.65, 0.325, 0.425, 0.175, 1.9375, 3.875, 0.1])
 model.fit(train_data, train_labels, cat_features=[
           'titre', 'artiste', 'clusterid'])
 

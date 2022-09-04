@@ -95,7 +95,8 @@ def predictionCatboost(dateSimule):
 
     # Data processing
     print("Processing data...")
-    df = df.drop(columns=['id', 'Chanson_id'])
+    df = df[df["tombee"] != True]
+    df = df.drop(columns=['id', 'Chanson_id', 'tombee'])
     reversed_cat = {'50': 1, '40': 2, '30': 3,
                     '20': 4, '10': 5, 'MC': 6, '20k': 7, None: 8}
     df = df.replace({'categorie': reversed_cat})
@@ -132,5 +133,5 @@ def predictionCatboost(dateSimule):
 
 # clustering(10)
 # input("Please change the definition of Mêmes Chansons in PostgreSQL")
-predictionCatboost("2022-08-15")
-print("Pipeline has successfully run !")
+predictionCatboost("2022-09-05")
+#print("Pipeline has successfully run !")

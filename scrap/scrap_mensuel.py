@@ -25,10 +25,11 @@ option.add_argument("--incognito")
 option.add_argument("--strat-maximised")
 option.add_argument('--ignore-certificate-errors')
 option.add_argument('--ignore-ssl-errors')
+option.add_argument('--log-level=3')
 browser = webdriver.Chrome(ChromeDriverManager().install(), options=option)
 
 
-lien = 'https://n-oubliez-pas-les-paroles.fandom.com/fr/wiki/Juillet_2022'
+lien = 'https://n-oubliez-pas-les-paroles.fandom.com/fr/wiki/Septembre_2022'
 
 # Gestion du temps
 
@@ -52,10 +53,10 @@ button.click()
 
 jours = browser.find_elements_by_xpath('//*[@id="mw-content-text"]/div/h2')
 nbJours = len(jours)
-u = 26
+u = 5
 
 # On itère sur les journées
-for i in range(16, nbJours+1):
+for i in range(4, nbJours+1):
 
     date = browser.find_element_by_xpath(
         '//*[@id="mw-content-text"]/div/h2[' + str(i) + ']').text
